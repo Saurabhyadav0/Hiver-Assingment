@@ -6,8 +6,11 @@ DATA_PROCESSED = ROOT / "data" / "processed"
 
 RAW_CSV = DATA_RAW / "twcs.csv"
 
-# Set after inspecting the data (Part 1). Twitter handle of the support account.
-BRAND_HANDLE = None
+# Picked after comparing volume, reply diversity, and boilerplate rate across
+# the top support accounts (see decision_log.md) — AmazonHelp had the most
+# volume, the lowest "please DM us" rate (1%), and 91% unique reply text,
+# meaning it actually resolves things publicly instead of punting to DMs.
+BRAND_HANDLE = "AmazonHelp"
 
 THREADS_PARQUET = DATA_PROCESSED / "threads.parquet"
 
