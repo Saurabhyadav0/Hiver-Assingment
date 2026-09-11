@@ -1,0 +1,9 @@
+pandas
+numpy
+scikit-learn
+openai
+python-dotenv
+pyarrow
+tqdm
+tenacity
+scipy
