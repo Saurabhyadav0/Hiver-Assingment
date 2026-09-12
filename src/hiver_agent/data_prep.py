@@ -41,12 +41,28 @@ def clean_text(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+_ENGLISH_STOPWORDS = {
+    "the", "i", "you", "to", "a", "is", "and", "my", "it", "for", "on", "in",
+    "of", "this", "have", "was", "with", "me", "your", "not", "be", "that",
+    "but", "are", "at", "just", "can", "please", "why", "no", "do", "if",
+    "still", "has", "been", "will", "would", "so", "get", "order", "thanks",
+}
+
+
 def is_english(text: str, min_ascii_ratio: float = 0.9) -> bool:
-    """Cheap language filter — ~6% of AmazonHelp threads are non-English (mostly
-    Japanese/Spanish) and would need a separate taxonomy/judge, so we drop them."""
+    """ASCII-script filter (catches Japanese/Arabic/etc.) plus an English
+    stopword check (catches French/German/Spanish, which are ASCII-heavy but
+    not English) — a handful of non-English threads would otherwise force a
+    multilingual taxonomy and judge for one brand's worth of data."""
     if not text:
         return False
-    return sum(c.isascii() for c in text) / len(text) >= min_ascii_ratio
+    if sum(c.isascii() for c in text) / len(text) < min_ascii_ratio:
+        return False
+    words = re.findall(r"[a-zA-Z']+", text.lower())
+    if len(words) < 4:
+        return True  # too short to judge reliably, let it through
+    hits = sum(1 for w in words if w in _ENGLISH_STOPWORDS)
+    return hits / len(words) >= 0.15
 
 
 def build_brand_pairs(df: pd.DataFrame, brand_handle: str) -> pd.DataFrame:
