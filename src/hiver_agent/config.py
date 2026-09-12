@@ -18,9 +18,12 @@ THREADS_PARQUET = DATA_PROCESSED / "threads.parquet"
 MAX_THREADS = 20_000
 RETRIEVAL_POOL_SIZE = 5_000
 
-CLASSIFY_MODEL = "gpt-4o-mini"
-DRAFT_MODEL = "gpt-4o-mini"
-JUDGE_MODEL = "gpt-4o"
-EMBEDDING_MODEL = "text-embedding-3-small"
+# Switched from OpenAI to Gemini mid-build (no OpenAI billing credits available).
+# "-latest" aliases used instead of pinned dated versions since Google rotates
+# them frequently and pinned names go stale.
+CLASSIFY_MODEL = "gemini-flash-latest"
+DRAFT_MODEL = "gemini-flash-latest"
+JUDGE_MODEL = "gemini-pro-latest"
+EMBEDDING_MODEL = "gemini-embedding-001"
 
 RETRIEVAL_TOP_K = 3

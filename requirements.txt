@@ -1,9 +1,10 @@
 pandas
 numpy
 scikit-learn
-openai
+google-genai
 python-dotenv
 pyarrow
 tqdm
 tenacity
 scipy
+pytest
