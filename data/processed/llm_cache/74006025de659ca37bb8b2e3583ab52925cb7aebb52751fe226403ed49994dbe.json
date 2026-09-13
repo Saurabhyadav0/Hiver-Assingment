@@ -1,0 +1,1 @@
+{"intent": "billing_payment_issue", "reasoning": "The customer explicitly mentions a mismatch in the payment amount, which falls directly under billing and payment problems, even though they also mention software bugs."}
