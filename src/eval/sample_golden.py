@@ -54,7 +54,7 @@ def main():
 
     out_path = config.DATA_PROCESSED / "golden_candidates.csv"
     cols = [
-        "golden_id", "customer_text", "brand_text", "heuristic_bucket",
+        "golden_id", "customer_tweet_id", "customer_text", "brand_text", "heuristic_bucket",
         "suggested_intent", "suggested_confidence", "true_intent",
         "true_escalate", "escalate_reason",
     ]
