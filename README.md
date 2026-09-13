@@ -23,15 +23,29 @@ computed (the golden-set evaluation) is cached to disk at
 ## Reproduce the headline results in under 15 minutes
 
 ```bash
-python -m pytest tests/ -q                 # ~15s, 25 unit tests
+python -m pytest tests/ -q                 # ~15s, 31 unit tests
 python -m src.eval.run_eval                # ~1-2 min, reads from cache
 ```
 
-`run_eval.py` reads `data/processed/golden_candidates.csv` (the hand-labeled
-golden set) and `data/processed/threads.parquet` (the processed AmazonHelp
-thread pool, both already committed), runs the trivial baseline, the simple
-(TF-IDF) baseline, and the real pipeline over every golden example, and
-writes:
+Headline numbers (216 golden examples — see the important caveat below on
+how ground truth was produced):
+
+| Metric | Pipeline | Simple baseline | Trivial baseline |
+|---|---|---|---|
+| Intent accuracy | 85.6% | 45.8% | 13.4% |
+| Intent macro-F1 | 78.2% | 39.6% | 2.4% |
+| Escalation F1 | 60.3% | 66.7% | 0% |
+| Mean LLM-judge score (1-5) | 4.27 | n/a | n/a |
+
+The pipeline beats both baselines on intent classification. It does *not*
+beat the simple baseline on escalation F1 — see `report/REPORT.md`'s failure
+analysis for why (short version: the always-escalate intent list is too
+narrow).
+
+`run_eval.py` reads `data/processed/golden_candidates.csv` (the golden set)
+and `data/processed/threads.parquet` (the processed AmazonHelp thread pool,
+both already committed), runs the trivial baseline, the simple (TF-IDF)
+baseline, and the real pipeline over every golden example, and writes:
 
 - `data/processed/eval_results.csv` — per-example predictions for all three systems
 - `data/processed/eval_summary.json` — the headline metrics table
@@ -65,15 +79,21 @@ src/hiver_agent/     the actual agent: data prep, intents, classify, retrieval,
 src/eval/            golden-set sampling/labeling tools, metrics, LLM judge
                      agreement check, run_eval.py orchestration
 data/processed/      threads.parquet, golden_candidates.csv, llm_cache/, eval outputs
-tests/               25 unit tests, mostly logic-only (no API calls)
-decision_log.md      15 non-obvious decisions and why
-report/REPORT.md     problem framing, results, failure analysis, next steps
+tests/               31 unit tests, mostly logic-only (no API calls)
+decision_log.md      16 non-obvious decisions and why
+report/REPORT.md     problem framing, real results, failure analysis, next steps
 ```
 
 ## Known limitations (see `report/REPORT.md` for the full write-up)
 
+- **The golden set's `true_intent`/`true_escalate` are an LLM draft, not
+  hand-labeled by a human.** This is the single most important caveat in
+  this repo — the assignment asks for hand-labeled ground truth, and time
+  constraints (compounded by hitting the Gemini free-tier daily quota twice)
+  meant that didn't happen. `auto_label_golden.py` uses two prompts
+  deliberately distinct from the production classify/decision code as a
+  less-circular stand-in; see `decision_log.md` #12 and the report's "what's
+  misleading about my headline number" section.
 - Classify, draft, and judge all currently use the same underlying Gemini
   model (free-tier constraints — Pro models get zero free-tier requests).
   This is a real self-preference bias risk for the judge scores.
-- The golden set's `true_intent`/`true_escalate` labels are human-reviewed
-  but LLM-suggested first; see `decision_log.md` #12.
