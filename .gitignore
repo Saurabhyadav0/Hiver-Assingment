@@ -7,6 +7,7 @@ data/raw/*
 !data/raw/.gitkeep
 data/processed/*.parquet
 !data/processed/.gitkeep
+!data/processed/threads.parquet
 .DS_Store
 *.egg-info/
 .pytest_cache/
