@@ -19,11 +19,21 @@ MAX_THREADS = 20_000
 RETRIEVAL_POOL_SIZE = 5_000
 
 # Switched from OpenAI to Gemini mid-build (no OpenAI billing credits available).
-# "-latest" aliases used instead of pinned dated versions since Google rotates
-# them frequently and pinned names go stale.
-CLASSIFY_MODEL = "gemini-flash-latest"
-DRAFT_MODEL = "gemini-flash-latest"
-JUDGE_MODEL = "gemini-pro-latest"
-EMBEDDING_MODEL = "gemini-embedding-001"
+# Free-tier Gemini quota turned out to be the real constraint: Pro models get
+# ZERO free-tier requests (confirmed via a live 429 naming
+# "GenerateRequestsPerDayPerProjectPerModel-FreeTier", limit 0), and
+# "gemini-flash-latest" (currently gemini-3.8-flash) caps at ~5 req/min.
+# "gemini-flash-lite-latest" tolerated ~15 req/min before throttling, so it's
+# used for classify/draft AND judge. Using one model for both generation and
+# judging is a known bias risk (self-preference) — see report's "what's
+# misleading about my headline number" section.
+CLASSIFY_MODEL = "gemini-flash-lite-latest"
+DRAFT_MODEL = "gemini-flash-lite-latest"
+JUDGE_MODEL = "gemini-flash-lite-latest"
+
+# Retrieval embeddings run locally (sentence-transformers) instead of through
+# the Gemini embeddings API — embedding the multi-thousand-row retrieval pool
+# at ~15 req/min would take hours and burn quota needed for classify/draft/judge.
+EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
 RETRIEVAL_TOP_K = 3
