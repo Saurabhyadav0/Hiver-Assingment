@@ -64,6 +64,18 @@ def run_baseline_row(baseline, message: str, reference_reply: str) -> dict:
     }
 
 
+def _load_partial_results() -> dict:
+    """golden_id -> row dict, from a previous run that got cut short (e.g. by
+    hitting the daily quota mid-loop) — every LLM call is cached anyway, but
+    without this the *script* still had to redo finished rows on retry, and
+    on this project's quota, retrying a finished row can 429 before it even
+    gets to a not-yet-cached row."""
+    if not RESULTS_PATH.exists():
+        return {}
+    prev = pd.read_csv(RESULTS_PATH, keep_default_na=False)
+    return {row["golden_id"]: row.to_dict() for _, row in prev.iterrows()}
+
+
 def main():
     golden = load_golden()
     if len(golden) == 0:
@@ -77,8 +89,13 @@ def main():
     trivial = TrivialBaseline()
     simple = train_simple_baseline(pool, exclude_ids=set(golden["customer_tweet_id"]))
 
-    rows = []
-    for _, g in golden.iterrows():
+    done = _load_partial_results()
+    rows = list(done.values())
+    todo = [g for _, g in golden.iterrows() if g["golden_id"] not in done]
+    if done:
+        print(f"Resuming: {len(done)}/{len(golden)} rows already in {RESULTS_PATH}")
+
+    for n, g in enumerate(todo):
         pipeline_out = run_pipeline_row(g["customer_text"], g["brand_text"], index)
         trivial_out = run_baseline_row(trivial, g["customer_text"], g["brand_text"])
         simple_out = run_baseline_row(simple, g["customer_text"], g["brand_text"])
@@ -90,6 +107,9 @@ def main():
             **{f"trivial_{k}": v for k, v in trivial_out.items()},
             **{f"simple_{k}": v for k, v in simple_out.items()},
         })
+        print(f"{len(rows)}/{len(golden)} row={g['golden_id']} done", flush=True)
+        if (n + 1) % 5 == 0:
+            pd.DataFrame(rows).to_csv(RESULTS_PATH, index=False)
 
     results = pd.DataFrame(rows)
     results.to_csv(RESULTS_PATH, index=False)
