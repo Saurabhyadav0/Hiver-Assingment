@@ -70,7 +70,7 @@ def _load_partial_results() -> dict:
     without this the *script* still had to redo finished rows on retry, and
     on this project's quota, retrying a finished row can 429 before it even
     gets to a not-yet-cached row."""
-    if not RESULTS_PATH.exists():
+    if not RESULTS_PATH.exists() or RESULTS_PATH.stat().st_size == 0:
         return {}
     prev = pd.read_csv(RESULTS_PATH, keep_default_na=False)
     return {row["golden_id"]: row.to_dict() for _, row in prev.iterrows()}

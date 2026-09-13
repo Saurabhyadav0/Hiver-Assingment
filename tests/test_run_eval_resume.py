@@ -22,3 +22,11 @@ def test_load_partial_results_empty_when_no_file(tmp_path, monkeypatch):
     monkeypatch.setattr(run_eval, "RESULTS_PATH", tmp_path / "does_not_exist.csv")
 
     assert run_eval._load_partial_results() == {}
+
+
+def test_load_partial_results_empty_when_file_is_zero_bytes(tmp_path, monkeypatch):
+    path = tmp_path / "empty.csv"
+    path.write_text("")
+    monkeypatch.setattr(run_eval, "RESULTS_PATH", path)
+
+    assert run_eval._load_partial_results() == {}
