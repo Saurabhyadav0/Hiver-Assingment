@@ -41,3 +41,21 @@ def test_load_golden_filters_to_labeled_rows(tmp_path, monkeypatch):
     assert len(result) == 1
     assert result.iloc[0]["golden_id"] == "g0"
     assert result.iloc[0]["true_escalate"] == False  # noqa: E712
+
+
+def test_main_exits_clearly_when_nothing_labeled(tmp_path, monkeypatch):
+    import pytest
+
+    path = tmp_path / "golden.csv"
+    pd.DataFrame({
+        "golden_id": ["g0"],
+        "customer_tweet_id": [1],
+        "customer_text": ["a"],
+        "brand_text": ["ra"],
+        "true_intent": [""],
+        "true_escalate": [""],
+    }).to_csv(path, index=False)
+    monkeypatch.setattr(run_eval, "GOLDEN_PATH", path)
+
+    with pytest.raises(SystemExit, match="No hand-labeled golden rows"):
+        run_eval.main()

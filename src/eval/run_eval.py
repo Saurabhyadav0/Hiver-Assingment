@@ -66,6 +66,11 @@ def run_baseline_row(baseline, message: str, reference_reply: str) -> dict:
 
 def main():
     golden = load_golden()
+    if len(golden) == 0:
+        raise SystemExit(
+            "No hand-labeled golden rows found. Fill in true_intent/true_escalate "
+            f"in {GOLDEN_PATH} before running eval — see decision_log.md #12."
+        )
     pool = pd.read_parquet(config.THREADS_PARQUET)
 
     index = build_index(exclude_ids=set(golden["customer_tweet_id"]))
