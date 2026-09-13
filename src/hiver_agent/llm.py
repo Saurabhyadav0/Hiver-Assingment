@@ -1,6 +1,7 @@
 """Thin shared wrapper around the Gemini client so every module doesn't
 re-implement API-key loading, rate limiting, and retry logic."""
 import collections
+import threading
 import time
 
 from dotenv import load_dotenv
@@ -12,24 +13,31 @@ load_dotenv()
 _client = None
 
 # Free-tier Gemini flash-lite tolerates ~15 req/min before 429ing; stay under
-# that with margin rather than relying on retries alone for every call.
+# that with margin rather than relying on retries alone for every call. Each
+# call also has ~7-14s of model latency, so callers doing bulk work (see
+# eval/suggest_golden_labels.py) should parallelize with threads — this lock
+# makes the throttle safe to share across them.
 _MAX_CALLS_PER_MINUTE = 12
 _call_times: collections.deque = collections.deque()
+_lock = threading.Lock()
 
 
 def _throttle():
-    now = time.monotonic()
-    while _call_times and now - _call_times[0] > 60:
-        _call_times.popleft()
-    if len(_call_times) >= _MAX_CALLS_PER_MINUTE:
-        time.sleep(60 - (now - _call_times[0]) + 0.5)
-    _call_times.append(time.monotonic())
+    with _lock:
+        now = time.monotonic()
+        while _call_times and now - _call_times[0] > 60:
+            _call_times.popleft()
+        if len(_call_times) >= _MAX_CALLS_PER_MINUTE:
+            time.sleep(60 - (now - _call_times[0]) + 0.5)
+        _call_times.append(time.monotonic())
 
 
 def client() -> genai.Client:
     global _client
     if _client is None:
-        _client = genai.Client()
+        # Without an explicit timeout, a stalled connection can hang a worker
+        # thread indefinitely instead of failing into the retry logic below.
+        _client = genai.Client(http_options={"timeout": 30_000})
     return _client
 
 
