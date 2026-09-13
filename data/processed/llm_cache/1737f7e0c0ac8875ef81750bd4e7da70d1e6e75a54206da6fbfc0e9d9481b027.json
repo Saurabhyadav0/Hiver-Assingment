@@ -1,0 +1,1 @@
+{"intent": "account_security", "confidence": 0.95, "rationale": "The user is reporting a bug that exposes sensitive order details of users to others, which directly concerns privacy and account security."}

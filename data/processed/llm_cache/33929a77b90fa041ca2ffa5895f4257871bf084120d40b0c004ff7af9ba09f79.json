@@ -1,0 +1,1 @@
+{"intent": "order_status_delivery", "confidence": 0.95, "rationale": "The customer is inquiring about the status of a specific order number because there is a contradiction between the account showing it as active and a message stating it was cancelled."}

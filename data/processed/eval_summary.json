@@ -1,0 +1,27 @@
+{
+  "pipeline": {
+    "intent_accuracy": 0.8564814814814815,
+    "intent_macro_f1": 0.782229360247263,
+    "escalate_precision": 0.7865168539325843,
+    "escalate_recall": 0.48951048951048953,
+    "escalate_f1": 0.603448275862069,
+    "mean_grounding_overlap": 0.5346626230718713,
+    "mean_judge_overall": 4.265740740740741
+  },
+  "trivial": {
+    "intent_accuracy": 0.13425925925925927,
+    "intent_macro_f1": 0.0236734693877551,
+    "escalate_precision": 0.0,
+    "escalate_recall": 0.0,
+    "escalate_f1": 0.0,
+    "mean_grounding_overlap": 0.0
+  },
+  "simple": {
+    "intent_accuracy": 0.4583333333333333,
+    "intent_macro_f1": 0.3956685947923148,
+    "escalate_precision": 0.7478260869565218,
+    "escalate_recall": 0.6013986013986014,
+    "escalate_f1": 0.6666666666666666,
+    "mean_grounding_overlap": 0.0
+  }
+}

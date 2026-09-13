@@ -1,0 +1,1 @@
+{"intent": "billing_payment_issue", "confidence": 0.95, "rationale": "The customer was charged money for a membership, but the system shows they do not have one, which is a payment and account sync dispute."}
