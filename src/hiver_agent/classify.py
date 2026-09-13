@@ -37,10 +37,6 @@ a confidence from 0 to 1, and a one-sentence rationale."""
 def classify(message: str) -> dict:
     prompt = _PROMPT_TEMPLATE.format(taxonomy=_taxonomy_block(), message=message)
     result = generate_json(config.CLASSIFY_MODEL, prompt, _SCHEMA)
-    if isinstance(result, str):
-        import json
-
-        result = json.loads(result)
     if result["intent"] not in INTENT_NAMES:
         result["intent"] = "complaint_negative_other"
         result["confidence"] = min(result.get("confidence", 0.0), 0.3)

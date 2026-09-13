@@ -44,9 +44,4 @@ def draft_reply(message: str, intent: str, retrieved: list[dict]) -> dict:
     prompt = _PROMPT_TEMPLATE.format(
         examples=_examples_block(retrieved), message=message, intent=intent
     )
-    result = generate_json(config.DRAFT_MODEL, prompt, _SCHEMA)
-    if isinstance(result, str):
-        import json
-
-        result = json.loads(result)
-    return result
+    return generate_json(config.DRAFT_MODEL, prompt, _SCHEMA)

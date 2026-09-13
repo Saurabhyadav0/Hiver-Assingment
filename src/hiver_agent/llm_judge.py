@@ -47,10 +47,6 @@ def judge_reply(message: str, reply: str, reference: str) -> dict:
         rubric=_RUBRIC, message=message, reference=reference or "(none available)", reply=reply
     )
     result = generate_json(config.JUDGE_MODEL, prompt, _SCHEMA)
-    if isinstance(result, str):
-        import json
-
-        result = json.loads(result)
     dims = ["grounded", "correctness", "helpfulness", "tone", "safety"]
     result["overall"] = sum(result[d] for d in dims) / len(dims)
     return result
