@@ -80,7 +80,7 @@ src/eval/            golden-set sampling/labeling tools, metrics, LLM judge
                      agreement check, run_eval.py orchestration
 data/processed/      threads.parquet, golden_candidates.csv, llm_cache/, eval outputs
 tests/               31 unit tests, mostly logic-only (no API calls)
-decision_log.md      16 non-obvious decisions and why
+decision_log.md      17 non-obvious decisions and why
 report/REPORT.md     problem framing, real results, failure analysis, next steps
 ```
 
@@ -97,3 +97,6 @@ report/REPORT.md     problem framing, real results, failure analysis, next steps
 - Classify, draft, and judge all currently use the same underlying Gemini
   model (free-tier constraints — Pro models get zero free-tier requests).
   This is a real self-preference bias risk for the judge scores.
+- **The judge-vs-human agreement number (kappa = 0.29) is LLM-vs-LLM, not
+  real human agreement** — a genuine human score wasn't obtained in time.
+  See `decision_log.md` #17 and the report's dedicated section on this.

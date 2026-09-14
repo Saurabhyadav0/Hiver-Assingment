@@ -133,6 +133,43 @@ This is a genuine limit of single-message (not thread-aware) classification,
 called out as an explicit scope cut in Problem Framing above, showing up
 concretely here.
 
+## Judge-vs-human agreement
+
+**This deliverable was not completed as specified.** The assignment asks for
+"evidence of how well your judge agrees with a human." A real human score
+was not obtained in the time available. Rather than skip this or quietly
+fake it, `second_opinion_score.py` runs a second, independent LLM pass (a
+holistic "would you let this ship" gut-check, deliberately framed
+differently from `llm_judge.py`'s per-dimension rubric) against the same 30
+sampled replies. **This measures agreement between two LLM scoring passes,
+not agreement between the judge and a human** — a materially weaker result,
+disclosed as such rather than presented as the real thing.
+
+Result: **quadratic-weighted Cohen's kappa = 0.29** (weak agreement), mean
+absolute difference = 0.8 points on a 5-point scale, n=30.
+
+That's a genuinely unflattering number, and digging into *why* the two
+passes disagree is more useful than the number itself. The biggest gaps are
+one-directional — the rubric-based judge scores meaningfully higher than the
+gut-check pass, especially when a reply technically satisfies each rubric
+dimension while ignoring something the customer explicitly said:
+
+> Customer: "nothing yet! are you going to refund my money? don't send me a
+> link... refund by EOD, I am going to write this to Mr. Thota"
+> Drafted reply: "...Please reach out to us via chat so we can review this
+> for you."
+> Rubric judge: 4.4/5. Gut-check: 1/5 — the reply does exactly what the
+> customer asked it not to do.
+
+Hypothesis: a dimension-by-dimension rubric (grounded/correct/helpful/tone/
+safety) can score acceptably on every individual axis while missing a
+holistic violation that only shows up when reading the reply against the
+*specific* thing the customer said, not the general category of message.
+This is a real methodological finding, independent of the human-vs-LLM
+caveat above: **whatever ultimately scores reply quality here should include
+an explicit "did this reply contradict something the customer explicitly
+asked for" check, not just per-dimension scoring.**
+
 ## What is misleading about my headline number
 
 This section is unusually important for this build, because of how the
@@ -183,6 +220,11 @@ golden set actually got made:
   that set 4.03/5 on average — a single bad sentence in an otherwise
   plausible-sounding reply doesn't tank the score much, so a good mean
   hides a real, systemic pattern.
+- **The judge-vs-human agreement check (kappa = 0.29) is itself not real
+  human agreement** — see the dedicated section above — and even setting
+  that caveat aside, weak agreement between two independent LLM scoring
+  passes means the 4.27/5 mean judge score should be read with real
+  skepticism, not treated as calibrated ground truth about reply quality.
 
 ## What I'd do next with one more week
 
@@ -199,8 +241,12 @@ golden set actually got made:
    retrieved reply is itself a privacy-scold and suppressing it as a
    grounding source unless the current message actually overshares.
 4. **Get a genuinely independent judge model** (different provider/family
-   from the generator) once budget allows, and re-run the judge-agreement
-   check against real human scores.
+   from the generator) once budget allows, and — most importantly — **get a
+   real human to score the judge-agreement sample.** The current kappa=0.29
+   is LLM-vs-LLM, not the human-agreement evidence the assignment asks for.
+   Also add an explicit "does this reply contradict something the customer
+   said" check to the rubric, motivated directly by the biggest disagreement
+   found between the two LLM passes.
 5. **Multi-turn context** — most real support interactions aren't
    one-shot; incorporating thread history into classification and drafting
    would likely help both failure mode #3 (general_inquiry/app_technical
