@@ -97,6 +97,8 @@ report/REPORT.md     problem framing, real results, failure analysis, next steps
 - Classify, draft, and judge all currently use the same underlying Gemini
   model (free-tier constraints — Pro models get zero free-tier requests).
   This is a real self-preference bias risk for the judge scores.
-- **The judge-vs-human agreement number (kappa = 0.29) is LLM-vs-LLM, not
-  real human agreement** — a genuine human score wasn't obtained in time.
-  See `decision_log.md` #17 and the report's dedicated section on this.
+- **Judge-vs-human agreement is weak: kappa = 0.14** (real human score, n=30
+  — see `decision_log.md` #17). The judge scores systematically higher than
+  a human reading the same replies (4.26 vs. 3.83 mean); it misses tone-
+  deafness and ignored context that a per-dimension rubric can't catch. See
+  the report's dedicated section for real examples.
